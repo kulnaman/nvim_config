@@ -35,7 +35,7 @@ require("telescope").setup {
       grouped = false,
       files = true,
       add_dirs = true,
-      depth = 1,
+      depth = 2,
       auto_depth = false,
       select_buffer = false,
       hidden = false,
