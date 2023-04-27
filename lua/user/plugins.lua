@@ -117,7 +117,12 @@ use {
   use { "ravenxrz/DAPInstall.nvim", commit = "8798b4c36d33723e7bba6ed6e2c202f84bb300de" }
  -- csv
   use {'chrisbra/csv.vim'}
-
+  use({
+    "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+    config = function()
+      require("lsp_lines").setup()
+    end,
+  })
   -- --feline 
   -- use 'freddiehaddad/feline.nvim'
   --
