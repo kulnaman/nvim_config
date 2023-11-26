@@ -62,6 +62,9 @@ keymap("n", "<leader>fp", ":Telescope projects<CR>", opts)
 keymap("n", "<leader>fb", ":Telescope file_browser path=%:h select_buffer=true<CR>", opts)
 -- keymap("n", "<leader>fb", ":Telescope file_browser<CR>", opts)
 
+
+-- Neogen
+keymap("n", "<Leader>nf", ":lua require('neogen').generate({type='func'})<CR>", opts)
 -- Git
 keymap("n", "<leader>gg", "<cmd>lua _LAZYGIT_TOGGLE()<CR>", opts)
 
