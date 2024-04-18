@@ -90,11 +90,12 @@ use {
   -- LSP
   -- use { "williamboman/nvim-lsp-installer", commit = "e9f13d7acaa60aff91c58b923002228668c8c9e6" } -- simple to use language server installer
   use { "neovim/nvim-lspconfig" } -- enable LSP
-  use { "williamboman/mason.nvim" }
-  use { "williamboman/mason-lspconfig.nvim" }
-  use { "jose-elias-alvarez/null-ls.nvim" } -- for formatters and linters
-  use { "RRethy/vim-illuminate" }
-
+  -- use { "williamboman/mason.nvim" }
+  -- use { "williamboman/mason-lspconfig.nvim" }
+  -- use { "jose-elias-alvarez/null-ls.nvim" } -- for formatters and linters
+  -- use { "RRethy/vim-illuminate" }
+  use {'ms-jpq/coq_nvim',branch="coq"}
+  use {'ms-jpq/coq.artifacts',branch="artifacts"}
   -- Telescope
   use { "nvim-telescope/telescope.nvim"}
 
