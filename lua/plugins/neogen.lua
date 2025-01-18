@@ -1,6 +1,8 @@
 local plugins={
   {
-    "danymat/neogen",lazy=true
+    "danymat/neogen",
+    config=true,
+    lazy=true
   },
 }
 return plugins
