@@ -27,9 +27,15 @@ map("n", "<leader>aw", "<cmd>VimtexCountWords!<CR>", { desc = "Count words in La
 -- Open various LaTeX-related files
 map("n", "<leader>ae", "<cmd>e ~/.config/nvim/lua/snippets/tex.snippets<CR>", { desc = "Edit LaTeX snippets", silent = true })
 map("n", "<leader>ag", "<cmd>e ~/.config/nvim/lua/templates/Glossary.tex<CR>", { desc = "Edit LaTeX glossary template", silent = true })
+
+
 -- Error handling and reporting for LaTeX
 map("n", "<leader>ar", "<cmd>VimtexErrors<CR>", { desc = "Show LaTeX compile errors", silent = true })
 map("i", "jk", "<ESC>", { desc = "Escape to normal mode", silent = true })
 map("i", "<leader>q", "<cmd>TagbarToggle<CR>", { desc = "Toggle Tagbar side window", silent = true })
+
+-- Neogen docstring generator
+map("n", "<Leader>nf", ":lua require('neogen').generate({type='func'})<CR>", {desc="Neogen generate annotation for current function"})
+map("n", "<Leader>nc", ":lua require('neogen').generate({type = 'class'})<CR>", {desc="Neogen generate annotation for current class"})
 
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
