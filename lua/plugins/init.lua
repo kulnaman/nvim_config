@@ -25,4 +25,24 @@ return {
   -- 		},
   -- 	},
   -- },
+  --
+  {
+  	"williamboman/mason.nvim",
+  	opts = {
+  		ensure_installed = {
+  			"lua-language-server", "stylua",
+  			"html-lsp", "css-lsp" , "prettier"
+  		},
+  	},
+  },
+  --
+  {
+  	"nvim-treesitter/nvim-treesitter",
+  	opts = {
+  		ensure_installed = {
+  			"vim", "lua", "vimdoc",
+       "c","python","cpp"
+  		},
+  	},
+  },
 }

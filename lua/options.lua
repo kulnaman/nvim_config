@@ -1,6 +1,21 @@
 require "nvchad.options"
 
--- add yours here!
+local g=vim.g
+local o = vim.o
+o.cursorlineopt ='both' -- to enable cursorline!
+o.spell=true
+g.loaded_netrw = 1
+g.loaded_netrwPlugin = 1
+vim.g.clipboard = {
+  name = 'OSC 52',
+  copy = {
+    ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+  },
+  paste = {
+    ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+  },
+}
+vim.opt.clipboard = 'unnamedplus'
 
--- local o = vim.o
--- o.cursorlineopt ='both' -- to enable cursorline!

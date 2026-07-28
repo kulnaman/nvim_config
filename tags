@@ -1,0 +1,17 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+PdfAnnots	lua/ftplugin/tex.lua	/^function PdfAnnots()$/;"	f
+["<Tab>"] 	lua/configs/cmp.lua	/^    ["<Tab>"] = cmp.mapping(function(fallback)$/;"	f
+callback 	lua/configs/lspconfig.lua	/^  callback = function(args)$/;"	f
+config 	backup/init.lua	/^    config = function()$/;"	f
+config 	lua/plugins/init.lua	/^    config = function()$/;"	f
+config 	lua/plugins/luasnip.lua	/^  config = function()$/;"	f
+config 	lua/plugins/render-markdown.lua	/^    config = function()$/;"	f
+init 	lua/plugins/vimtex.lua	/^  init = function()$/;"	f
+jedi_hover 	backup/lspconfig.lua	/^        jedi_hover = { enabled = true },  -- keep hover functionality$/;"	f
+jedi_references 	backup/lspconfig.lua	/^        jedi_references = { enabled = true },  -- keep references functionality$/;"	f
+map("n", "<Leader>nf", ":lua require('neogen').generate({type	lua/mappings.lua	/^map("n", "<Leader>nf", ":lua require('neogen').generate({type='func'})<CR>", {desc="Neogen generate annotation for current function"})$/;"	f
