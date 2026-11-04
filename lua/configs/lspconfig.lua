@@ -1,60 +1,113 @@
 -- lua/configs/lspconfig.lua
+-- Python: basedpyright (completion, auto-import, types) + ruff (lint, import sort, fixes)
+-- C/C++:  clangd
 
-local on_attach = require("nvchad.configs.lspconfig").on_attach
-local on_init   = require("nvchad.configs.lspconfig").on_init
-local capabilities = require("nvchad.configs.lspconfig").capabilities
+local nvlsp = require "nvchad.configs.lspconfig"
 
-local blink_cmp_capabilities = require("blink.cmp").get_lsp_capabilities()
-capabilities = vim.tbl_deep_extend("force", capabilities, blink_cmp_capabilities)
+local capabilities = vim.tbl_deep_extend(
+  "force",
+  nvlsp.capabilities,
+  require("blink.cmp").get_lsp_capabilities()
+)
 
--- Use LspAttach autocmd instead of on_attach in vim.lsp.config
--- This avoids the function merging bug with the '*' wildcard
+---------------------------------------------------------------------------
+-- Python interpreter detection
+-- Order: activated venv/conda env -> project .venv/venv -> system python3
+---------------------------------------------------------------------------
+local function python_path(root)
+  for _, env in ipairs { vim.env.VIRTUAL_ENV, vim.env.CONDA_PREFIX } do
+    if env and env ~= "" then
+      return env .. "/bin/python"
+    end
+  end
+  if root then
+    for _, dir in ipairs { ".venv", "venv" } do
+      local p = root .. "/" .. dir .. "/bin/python"
+      if vim.uv.fs_stat(p) then
+        return p
+      end
+    end
+  end
+  return vim.fn.exepath "python3"
+end
+
+---------------------------------------------------------------------------
+-- Shared attach logic
+---------------------------------------------------------------------------
 vim.api.nvim_create_autocmd("LspAttach", {
+  group = vim.api.nvim_create_augroup("UserLspAttach", { clear = true }),
   callback = function(args)
     local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if not client then
+      return
+    end
     local bufnr = args.buf
 
-    -- Call NvChad's on_attach for its default keymaps/settings
-    on_attach(client, bufnr)
-    on_init(client)
+    nvlsp.on_attach(client, bufnr)
+    -- NvChad's on_init disables semantic tokens; keep them for basedpyright
+    if client.name ~= "basedpyright" then
+      nvlsp.on_init(client)
+    end
+    local map = function(mode, lhs, rhs, desc)
+      vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, silent = true, desc = desc })
+    end
+    map("n", "gd", vim.lsp.buf.definition, "LSP Go to Definition")
+    map("n", "gD", vim.lsp.buf.declaration, "LSP Go to Declaration")
+    map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "LSP Code action (add import, fixes)")
+    map("n", "<leader>th", function()
+      vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = bufnr }, { bufnr = bufnr })
+    end, "Toggle inlay hints")
 
-    -- Explicitly set gd / gD (not in Neovim defaults)
-    local opts = { buffer = bufnr, silent = true }
-    vim.keymap.set("n", "gd", vim.lsp.buf.definition,  vim.tbl_extend("force", opts, { desc = "LSP Go to Definition" }))
-    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, vim.tbl_extend("force", opts, { desc = "LSP Go to Declaration" }))
+    -- Let basedpyright own hover; ruff's hover is just rule docs
+    if client.name == "ruff" then
+      client.server_capabilities.hoverProvider = false
+    end
   end,
 })
 
--- Shared non-function config (capabilities is fine here, it's a table)
-vim.lsp.config('*', {
-  capabilities = capabilities,
-})
+vim.lsp.config("*", { capabilities = capabilities })
 
--- pylsp-specific settings
-vim.lsp.config('pylsp', {
+---------------------------------------------------------------------------
+-- basedpyright
+---------------------------------------------------------------------------
+vim.lsp.config("basedpyright", {
+  before_init = function(_, config)
+    config.settings = config.settings or {}
+    config.settings.python = { pythonPath = python_path(config.root_dir) }
+  end,
   settings = {
-    pylsp = {
-      plugins = {
-  rope_completion      = { enabled = false },  -- turn off, jedi is better + faster
-  rope_autoimport      = { enabled = true, memory = false },  -- NEW: real import suggestions
-  black                = { enabled = true, line_length = 88, preview = true },
-  ruff                 = { enabled = true, lineLength = 88, select = {"E","F","I","W"}, ignore = {}, format = false },
-  pycodestyle          = { enabled = false },
-  autopep8             = { enabled = false },
-  yapf                 = { enabled = false },
-  pylint               = { enabled = false },
-  pyflakes             = { enabled = false },
-  mccabe               = { enabled = false },
-  preload              = { enabled = false },
-  jedi_completion      = { enabled = true, include_params = true, fuzzy = true },  -- FLIPPED ON
-  jedi_hover           = { enabled = true },
-  jedi_references      = { enabled = true },
-  jedi_signature_help  = { enabled = true },
-  jedi_symbols         = { enabled = true },
-},
+    basedpyright = {
+      disableOrganizeImports = true, -- ruff sorts imports
+      analysis = {
+        autoImportCompletions = true,
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+        diagnosticMode = "openFilesOnly", -- "workspace" is slower on big repos
+        typeCheckingMode = "standard", -- "basic" quieter, "recommended"/"all" stricter
+        inlayHints = {
+          variableTypes = true,
+          functionReturnTypes = true,
+          callArgumentNames = true,
+          genericTypes = false,
+        },
+      },
     },
   },
 })
 
-vim.lsp.enable({ 'clangd', 'pylsp' })
+---------------------------------------------------------------------------
+-- ruff (native LSP; project pyproject.toml / ruff.toml takes precedence)
+---------------------------------------------------------------------------
+vim.lsp.config("ruff", {
+  init_options = {
+    settings = {
+      lineLength = 88,
+      lint = { select = { "E", "F", "W", "I", "B", "UP" } },
+      configurationPreference = "filesystemFirst",
+    },
+  },
+})
 
+vim.lsp.enable { "clangd", "basedpyright", "ruff" }
+
+-- Optional: keep pylsp around as a fallback by swapping it into the list above.

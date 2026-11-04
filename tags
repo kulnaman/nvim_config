@@ -6,12 +6,19 @@
 !_TAG_PROGRAM_VERSION	5.8	//
 PdfAnnots	lua/ftplugin/tex.lua	/^function PdfAnnots()$/;"	f
 ["<Tab>"] 	lua/configs/cmp.lua	/^    ["<Tab>"] = cmp.mapping(function(fallback)$/;"	f
+["@keyword.function"] 	lua/chadrc.lua	/^    ["@keyword.function"] = { fg = "purple" },                -- def$/;"	f
+["@lsp.type.function.python"]  	lua/chadrc.lua	/^    ["@lsp.type.function.python"]  = { fg = "blue" },$/;"	f
+before_init 	lua/configs/lspconfig.lua	/^  before_init = function(_, config)$/;"	f
 callback 	lua/configs/lspconfig.lua	/^  callback = function(args)$/;"	f
 config 	backup/init.lua	/^    config = function()$/;"	f
 config 	lua/plugins/init.lua	/^    config = function()$/;"	f
 config 	lua/plugins/luasnip.lua	/^  config = function()$/;"	f
 config 	lua/plugins/render-markdown.lua	/^    config = function()$/;"	f
+format_on_save 	lua/configs/conform.lua	/^  format_on_save = function(bufnr)$/;"	f
+functionReturnTypes 	lua/configs/lspconfig.lua	/^          functionReturnTypes = true,$/;"	f
 init 	lua/plugins/vimtex.lua	/^  init = function()$/;"	f
 jedi_hover 	backup/lspconfig.lua	/^        jedi_hover = { enabled = true },  -- keep hover functionality$/;"	f
 jedi_references 	backup/lspconfig.lua	/^        jedi_references = { enabled = true },  -- keep references functionality$/;"	f
+local map 	lua/configs/lspconfig.lua	/^    local map = function(mode, lhs, rhs, desc)$/;"	f
 map("n", "<Leader>nf", ":lua require('neogen').generate({type	lua/mappings.lua	/^map("n", "<Leader>nf", ":lua require('neogen').generate({type='func'})<CR>", {desc="Neogen generate annotation for current function"})$/;"	f
+python_path	lua/configs/lspconfig.lua	/^local function python_path(root)$/;"	f
