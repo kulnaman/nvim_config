@@ -1,8 +1,10 @@
 -- lua/configs/lspconfig.lua
 -- Python: basedpyright (completion, auto-import, types) + ruff (lint, import sort, fixes)
--- C/C++:  clangd
+-- C/C++:  clangd (auto-#include, clang-tidy, background index)
+-- Keymaps: see lua/mappings.lua (LSP section)
 
 local nvlsp = require "nvchad.configs.lspconfig"
+local py = require "utils.python"
 
 local capabilities = vim.tbl_deep_extend(
   "force",
@@ -10,30 +12,6 @@ local capabilities = vim.tbl_deep_extend(
   require("blink.cmp").get_lsp_capabilities()
 )
 
----------------------------------------------------------------------------
--- Python interpreter detection
--- Order: activated venv/conda env -> project .venv/venv -> system python3
----------------------------------------------------------------------------
-local function python_path(root)
-  for _, env in ipairs { vim.env.VIRTUAL_ENV, vim.env.CONDA_PREFIX } do
-    if env and env ~= "" then
-      return env .. "/bin/python"
-    end
-  end
-  if root then
-    for _, dir in ipairs { ".venv", "venv" } do
-      local p = root .. "/" .. dir .. "/bin/python"
-      if vim.uv.fs_stat(p) then
-        return p
-      end
-    end
-  end
-  return vim.fn.exepath "python3"
-end
-
----------------------------------------------------------------------------
--- Shared attach logic
----------------------------------------------------------------------------
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("UserLspAttach", { clear = true }),
   callback = function(args)
@@ -41,22 +19,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
     if not client then
       return
     end
-    local bufnr = args.buf
 
-    nvlsp.on_attach(client, bufnr)
+    nvlsp.on_attach(client, args.buf)
     -- NvChad's on_init disables semantic tokens; keep them for basedpyright
     if client.name ~= "basedpyright" then
       nvlsp.on_init(client)
     end
-    local map = function(mode, lhs, rhs, desc)
-      vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, silent = true, desc = desc })
-    end
-    map("n", "gd", vim.lsp.buf.definition, "LSP Go to Definition")
-    map("n", "gD", vim.lsp.buf.declaration, "LSP Go to Declaration")
-    map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "LSP Code action (add import, fixes)")
-    map("n", "<leader>th", function()
-      vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = bufnr }, { bufnr = bufnr })
-    end, "Toggle inlay hints")
 
     -- Let basedpyright own hover; ruff's hover is just rule docs
     if client.name == "ruff" then
@@ -73,7 +41,7 @@ vim.lsp.config("*", { capabilities = capabilities })
 vim.lsp.config("basedpyright", {
   before_init = function(_, config)
     config.settings = config.settings or {}
-    config.settings.python = { pythonPath = python_path(config.root_dir) }
+    config.settings.python = { pythonPath = py.path(config.root_dir) }
   end,
   settings = {
     basedpyright = {
@@ -82,8 +50,8 @@ vim.lsp.config("basedpyright", {
         autoImportCompletions = true,
         autoSearchPaths = true,
         useLibraryCodeForTypes = true,
-        diagnosticMode = "openFilesOnly", -- "workspace" is slower on big repos
-        typeCheckingMode = "standard", -- "basic" quieter, "recommended"/"all" stricter
+        diagnosticMode = "openFilesOnly",
+        typeCheckingMode = "standard",
         inlayHints = {
           variableTypes = true,
           functionReturnTypes = true,
@@ -108,6 +76,25 @@ vim.lsp.config("ruff", {
   },
 })
 
-vim.lsp.enable { "clangd", "basedpyright", "ruff" }
+---------------------------------------------------------------------------
+-- clangd
+-- Needs compile_commands.json at the project root (or in build/):
+--   CMake: cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+--   Make:  bear -- make
+---------------------------------------------------------------------------
+vim.lsp.config("clangd", {
+  cmd = {
+    "clangd",
+    "--background-index",
+    "--clang-tidy",
+    "--header-insertion=iwyu", -- auto-add #include when accepting a completion
+    "--completion-style=detailed",
+    "--fallback-style=llvm",
+    "-j=4",
+    -- On the cluster, if clangd can't find system/MPI headers, uncomment and adjust:
+    -- "--query-driver=/usr/bin/g++,/opt/**/bin/g++*,/opt/**/bin/mpic*",
+  },
+  init_options = { clangdFileStatus = true },
+})
 
--- Optional: keep pylsp around as a fallback by swapping it into the list above.
+vim.lsp.enable { "clangd", "basedpyright", "ruff" }

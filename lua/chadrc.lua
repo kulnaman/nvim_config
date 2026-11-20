@@ -4,40 +4,27 @@
 
 ---@type ChadrcConfig
 local M = {}
-M.base46 = {
 
-	theme = "tokyonight",
-  -- groups the theme already defines (tree-sitter)
+M.base46 = {
+  theme = "espresso", -- must be here, written with double quotes
+
   hl_override = {
-    ["@keyword.import"]   = { fg = "purple", italic = true }, -- from / import
-    ["@keyword.function"] = { fg = "purple" },                -- def
-    ["@keyword.type"]     = { fg = "purple" },                -- class
+    ["@keyword.import"]   = { fg = "purple", italic = true },
+    ["@keyword.function"] = { fg = "purple" },
+    ["@keyword.type"]     = { fg = "purple" },
     ["@keyword"]          = { fg = "purple" },
   },
 
-  -- groups coming from basedpyright's semantic tokens (python only)
   hl_add = {
-    ["@lsp.type.namespace.python"] = { fg = "baby_pink" },             -- cosched.config.model
-    ["@lsp.type.class.python"]     = { fg = "yellow" },                -- Instance, Ledger, NodeView
+    ["@lsp.type.namespace.python"]     = { fg = "baby_pink" },
+    ["@lsp.type.class.python"]         = { fg = "yellow" },
     ["@lsp.type.typeParameter.python"] = { fg = "yellow", italic = true },
-    ["@lsp.type.decorator.python"] = { fg = "orange" },                -- @dataclass
-    ["@lsp.type.function.python"]  = { fg = "blue" },
-    ["@lsp.type.method.python"]    = { fg = "blue" },
+    ["@lsp.type.decorator.python"]     = { fg = "orange" },
+    ["@lsp.type.function.python"]      = { fg = "blue" },
+    ["@lsp.type.method.python"]        = { fg = "blue" },
   },
 }
-M.base46 = {
 
-	-- hl_override = {
-	-- 	Comment = { italic = true },
-	-- 	["@comment"] = { italic = true },
-	-- },
-}
-
--- M.nvdash = { load_on_startup = true }
--- M.ui = {
---       tabufline = {
---          lazyload = false
---      }
--- }
+-- keep your other sections (M.ui, M.nvdash, ...) as they are
 
 return M
